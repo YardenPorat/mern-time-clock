@@ -12,8 +12,8 @@ const NavBar = ({ mainLink, links }) => (
         </Link>
         <div className='collpase navbar-collapse'>
             <ul className='navbar-nav mr-auto'>
-                {links.map(link => (
-                    <li className='navbar-item'>
+                {links.map((link, i) => (
+                    <li className='navbar-item' key={i}>
                         <Link to={link.to} className='nav-link'>
                             {link.text}
                         </Link>

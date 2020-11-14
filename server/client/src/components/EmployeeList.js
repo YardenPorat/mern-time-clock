@@ -1,25 +1,23 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { URLS } from '../consts';
 
-export default class EmployeeList extends Component {
-    constructor(props) {
-        super(props);
-        this.DEFAULT_OPTION = 'Choose...';
-        this.state = {
-            employeeList: [],
-        };
-    }
+const EmployeeList = props => {
+    const DEFAULT_OPTION = 'Choose...';
+    const [employeeList, setEmployeeList] = useState([]);
+
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
 
     //get employee list
-    async componentDidMount() {
+    const fetchEmployees = async () => {
         const res = await axios.get(URLS.getEmployees);
-        this.setState({ employeeList: res.data });
-    }
+        setEmployeeList(res.data);
+    };
 
-    renderNames = () => {
-        // console.log(this.state.employeeList); //testing
-        return this.state.employeeList.map(employee => {
+    const renderNames = () => {
+        return employeeList.map(employee => {
             return (
                 <option key={employee._id} value={employee._id}>
                     {employee.employeeName}
@@ -28,25 +26,25 @@ export default class EmployeeList extends Component {
         });
     };
 
-    render() {
-        return (
-            <div>
-                <div className='form-group'>
-                    <label className='my-1 mr-2' htmlFor='empNameInput'>
-                        Employee Name
-                    </label>
-                    <select
-                        // value={this.props.selectedEmployeeId}
-                        onChange={e => this.props.onChangeSelectEmployee(e)}
-                        className='custom-select my-1 mr-sm-2'
-                        id='empNameInput'
-                        name='selectedEmployeeId'
-                    >
-                        <option>{this.DEFAULT_OPTION}</option>
-                        {this.renderNames()}
-                    </select>
-                </div>
+    return (
+        <div>
+            <div className='form-group'>
+                <label className='my-1 mr-2' htmlFor='empNameInput'>
+                    Employee Name
+                </label>
+                <select
+                    // value={this.props.selectedEmployeeId}
+                    onChange={e => props.onChangeSelectEmployee(e)}
+                    className='custom-select my-1 mr-sm-2'
+                    id='empNameInput'
+                    name='selectedEmployeeId'
+                >
+                    <option>{DEFAULT_OPTION}</option>
+                    {renderNames()}
+                </select>
             </div>
-        );
-    }
-}
+        </div>
+    );
+};
+
+export default EmployeeList;
