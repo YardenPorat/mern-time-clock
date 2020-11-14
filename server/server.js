@@ -109,7 +109,9 @@ app.get('/report/:date', async (req, res) => {
 
     //add events to each employee id
     forEach(events, event => {
-        report[event._employee][event.eventType] = event.eventDateTime;
+        if (report.hasOwnProperty(event._employee)) {
+            report[event._employee][event.eventType] = event.eventDateTime;
+        }
     });
     res.status(200).send(report);
 });

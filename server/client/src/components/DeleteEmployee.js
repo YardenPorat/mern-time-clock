@@ -1,43 +1,30 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { URLS } from '../consts';
+import EmployeeList from './EmployeeList';
+
 export default class DeleteEmployee extends Component {
     constructor(props) {
         super(props);
+        this.DEFAULT_OPTION = 'Choose...';
         this.state = {
+            selectedEmployeeId: this.DEFAULT_OPTION,
             employeeList: [],
-            selectedEmployeeId: 'Choose...',
             errorNotChosen: false,
         };
-        this.CHOOSE_OPTION = 'Choose...';
     }
 
-    async componentDidMount() {
-        const res = await axios.get('http://localhost:4000/');
-        this.setState({ employeeList: res.data });
-    }
-
-    selectEmployee = e => {
+    onChangeSelectEmployee = e => {
+        console.log(e.target.value);
         this.setState({
             selectedEmployeeId: e.target.value,
             errorNotChosen: false,
         });
     };
 
-    renderNames = () => {
-        // console.log(this.state.employeeList);
-        return this.state.employeeList.map(employee => {
-            return (
-                <option key={employee._id} value={employee._id}>
-                    {employee.employeeName}
-                </option>
-            );
-        });
-    };
-
     onSubmit = async e => {
         e.preventDefault();
-        if (this.state.selectedEmployeeId !== this.CHOOSE_OPTION) {
+        if (this.state.selectedEmployeeId !== this.DEFAULT_OPTION) {
             try {
                 const res = await axios.delete(
                     URLS.DeleteEmployeeUrl(this.state.selectedEmployeeId)
@@ -57,27 +44,20 @@ export default class DeleteEmployee extends Component {
         this.setState({ errorNotChosen: true });
     };
 
+    handleCloseAlert = () => {
+        this.setState({ errorNotChosen: false });
+    };
+
     render() {
         return (
             <div>
                 <form onSubmit={this.onSubmit}>
-                    <label
-                        className='my-1 mr-2'
-                        htmlFor='inlineFormCustomSelectPref'
-                    >
-                        Employee Name
-                    </label>
-                    <select
-                        value={this.state.selectedEmployeeId}
-                        onChange={this.selectEmployee}
-                        className='custom-select my-1 mr-sm-2'
-                        id='inlineFormCustomSelectPref'
-                    >
-                        <option>{this.CHOOSE_OPTION}</option>
-                        {this.renderNames()}
-                    </select>
+                    <EmployeeList
+                        onChangeSelectEmployee={this.onChangeSelectEmployee}
+                        selectedEmployeeId={this.state.selectedEmployeeId}
+                        DEFAULT_OPTION={this.DEFAULT_OPTION}
+                    />
 
-                    <br />
                     <br />
                     <div className='form-group'>
                         <input
@@ -95,9 +75,7 @@ export default class DeleteEmployee extends Component {
                             className='close'
                             data-dismiss='alert'
                             aria-label='Close'
-                            onClick={() =>
-                                this.setState({ errorNotChosen: false })
-                            }
+                            onClick={this.handleCloseAlert}
                         >
                             <span aria-hidden='true'>&times;</span>
                         </button>

@@ -14,7 +14,7 @@ const Item = props => {
     );
     const totalMinutes = dayMinutes - breakMinutes;
 
-    console.log(totalMinutes);
+    // console.log(totalMinutes);
     const hours = isNaN(totalMinutes)
         ? 'Missing Data'
         : `${parseInt(totalMinutes / 60)}:${totalMinutes % 60}`;
@@ -47,14 +47,18 @@ export default class HoursReport extends Component {
         };
     }
 
-    async componentDidMount(date = this.state.date) {
+    componentDidMount() {
         try {
-            const res = await axios.get(URLS.ReportUrl(date));
-            this.setState({ items: res.data });
+            this.fetchReportData();
         } catch (err) {
             console.log(`cannot get items`);
         }
     }
+
+    fetchReportData = async (date = this.state.date) => {
+        const res = await axios.get(URLS.ReportUrl(date));
+        this.setState({ items: res.data });
+    };
 
     itemList() {
         return Object.keys(this.state.items).map(id => (
@@ -68,7 +72,7 @@ export default class HoursReport extends Component {
     onSubmit = e => {
         e.preventDefault();
         try {
-            this.componentDidMount(this.state.date);
+            this.fetchReportData();
         } catch (err) {
             console.log(`cannot get items`);
         }

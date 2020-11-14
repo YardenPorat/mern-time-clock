@@ -1,35 +1,21 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { URLS } from '../consts';
+import EmployeeList from './EmployeeList';
+
 export default class HourLogger extends Component {
     constructor(props) {
         super(props);
+        this.DEFAULT_OPTION = 'Choose...';
         this.state = {
-            employeeList: [],
-            selectedEmployeeId: 'Choose...',
-            selectedEvent: 'Choose...',
+            selectedEmployeeId: this.DEFAULT_OPTION,
+            selectedEvent: this.DEFAULT_OPTION,
         };
-    }
-
-    //get employee list
-    async componentDidMount() {
-        const res = await axios.get(URLS.getEmployees);
-        this.setState({ employeeList: res.data });
     }
 
     //update state on selected option
     selectItem = e => {
         this.setState({ [e.target.name]: e.target.value });
-    };
-
-    renderNames = () => {
-        return this.state.employeeList.map(employee => {
-            return (
-                <option key={employee._id} value={employee._id}>
-                    {employee.employeeName}
-                </option>
-            );
-        });
     };
 
     onSubmit = async e => {
@@ -38,22 +24,17 @@ export default class HourLogger extends Component {
             selectedEmployeeId: this.state.selectedEmployeeId,
             eventType: this.state.selectedEvent,
         };
-        // console.log(newEvent);
-
+        console.log(1);
         try {
-            const res = await axios.post(
-                'http://localhost:4000/events/add',
-                newEvent
-            );
+            const res = await axios.post(URLS.CreateEvent, newEvent);
             console.log(res.data);
+            this.setState({
+                selectedEmployeeId: '',
+                selectedEvent: '',
+            });
         } catch (err) {
             console.log(`error - cannot post new todo: ${err}`);
         }
-
-        this.setState({
-            selectedEmployeeId: '',
-            selectedEvent: '',
-        });
     };
 
     render() {
@@ -61,24 +42,11 @@ export default class HourLogger extends Component {
         return (
             <div>
                 <form onSubmit={this.onSubmit}>
-                    <div className='form-group'>
-                        <label
-                            className='my-1 mr-2'
-                            htmlFor='inlineFormCustomSelectPref'
-                        >
-                            Employee Name
-                        </label>
-                        <select
-                            value={this.state.selectedEmployeeId}
-                            onChange={this.selectItem}
-                            className='form-control'
-                            id='inlineFormCustomSelectPref'
-                            name='selectedEmployeeId'
-                        >
-                            <option>{chooseOption}</option>
-                            {this.renderNames()}
-                        </select>
-                    </div>
+                    <EmployeeList
+                        onChangeSelectEmployee={this.selectItem}
+                        selectedEmployeeId={this.state.selectedEmployeeId}
+                        DEFAULT_OPTION={this.DEFAULT_OPTION}
+                    />
                     <div className='form-group'>
                         <label
                             className='my-1 mr-2'
