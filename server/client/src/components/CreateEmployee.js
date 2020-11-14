@@ -18,10 +18,10 @@ export default class CreateEmployee extends Component {
     handleSubmit = async e => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:4000/create', {
+            const res = await axios.post('http://localhost:4000/employee/add', {
                 employeeName: this.state.employeeName,
             });
-            console.log(res);
+            console.log(res.data);
         } catch (err) {
             console.log(err);
         }
@@ -31,13 +31,14 @@ export default class CreateEmployee extends Component {
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
-                    <h3>Add new employee</h3>
+                    <h3>Add a new employee</h3>
                     <div className='form-group'>
-                        <label htmlFor=''>Employee Name</label>
+                        <label htmlFor='employeeName'>Employee Name</label>
                         <input
                             type='text'
                             className='form-control'
-                            name='employeeName'
+                            id='employeeName'
+                            name='employeeName' //for state {key}
                             value={this.state.employeeName}
                             onChange={this.onChangeInput}
                         />

@@ -5,4 +5,4 @@ const employeeSchema = new Schema({
     employeeName: String,
 });
 
-module.exports = mongoose.model('employees', employeeSchema); //loads the schema to mongoose
+module.exports = mongoose.model('employees', employeeSchema);

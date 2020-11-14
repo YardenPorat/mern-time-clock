@@ -1,8 +1,13 @@
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+// import $ from 'jquery';
+// import Popper from 'popper.js';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
+
 import logo from './logo.svg';
 import './App.css';
 import CreateEmployee from './components/CreateEmployee';
+import DeleteEmployee from './components/DeleteEmployee';
 import HourLogger from './components/HourLogger';
 import HoursReport from './components/HoursReport';
 
@@ -10,7 +15,7 @@ function App() {
     return (
         <BrowserRouter>
             <div className='container'>
-                <nav className='navbar navbar-expand-lg navbar-light bg-light'>
+                <nav className='navbar navbar-expand-sm navbar-light bg-light'>
                     <a href='/' className='navbar-brand'>
                         <img src={logo} alt='logo' width='30' height='30' />
                     </a>
@@ -34,13 +39,20 @@ function App() {
                                     Hours Report
                                 </Link>
                             </li>
+                            <li className='navbar-item'>
+                                <Link to='/delete' className='nav-link'>
+                                    Delete Employee
+                                </Link>
+                            </li>
                         </ul>
                     </div>
                 </nav>
+                <br />
 
                 <Route path='/' exact component={HourLogger} />
                 <Route path='/create' component={CreateEmployee} />
                 <Route path='/report' component={HoursReport} />
+                <Route path='/delete' component={DeleteEmployee} />
             </div>
         </BrowserRouter>
     );

@@ -11,21 +11,18 @@ export default class HourLogger extends Component {
         };
     }
 
+    //get employee list
     async componentDidMount() {
         const res = await axios.get('http://localhost:4000/');
         this.setState({ employeeList: res.data });
     }
 
-    selectEmployee = e => {
-        this.setState({ selectedEmployeeId: e.target.value });
-    };
-
-    selectEvent = e => {
-        this.setState({ selectedEvent: e.target.value });
+    //update state on selected option
+    selectItem = e => {
+        this.setState({ [e.target.name]: e.target.value });
     };
 
     renderNames = () => {
-        // console.log(this.state.employeeList);
         return this.state.employeeList.map(employee => {
             return (
                 <option key={employee._id} value={employee._id}>
@@ -41,7 +38,7 @@ export default class HourLogger extends Component {
             selectedEmployeeId: this.state.selectedEmployeeId,
             eventType: this.state.selectedEvent,
         };
-        console.log(newEvent);
+        // console.log(newEvent);
 
         try {
             const res = await axios.post(
@@ -64,33 +61,49 @@ export default class HourLogger extends Component {
         return (
             <div>
                 <form onSubmit={this.onSubmit}>
-                    <label
-                        className='my-1 mr-2'
-                        htmlFor='inlineFormCustomSelectPref'
-                    >
-                        Employee Name
-                    </label>
-                    <select
-                        value={this.state.selectedEmployeeId}
-                        onChange={this.selectEmployee}
-                        className='custom-select my-1 mr-sm-2'
-                        id='inlineFormCustomSelectPref'
-                    >
-                        <option>{chooseOption}</option>
-                        {this.renderNames()}
-                    </select>
-                    <select
-                        value={this.state.selectedEvent}
-                        onChange={this.selectEvent}
-                        className='custom-select my-1 mr-sm-2'
-                        id='inlineFormCustomSelectPref'
-                    >
-                        <option>{chooseOption}</option>
-                        <option value='dayStart'>Start Workday</option>
-                        <option value='breakStart'>Start Break Time</option>
-                        <option value='breakFinish'>Finish Break Time</option>
-                        <option value='dayFinish'>Finish Workday</option>
-                    </select>
+                    <div className='form-group'>
+                        <label
+                            className='my-1 mr-2'
+                            htmlFor='inlineFormCustomSelectPref'
+                        >
+                            Employee Name
+                        </label>
+                        <select
+                            value={this.state.selectedEmployeeId}
+                            onChange={this.selectItem}
+                            className='form-control'
+                            id='inlineFormCustomSelectPref'
+                            name='selectedEmployeeId'
+                        >
+                            <option>{chooseOption}</option>
+                            {this.renderNames()}
+                        </select>
+                    </div>
+                    <div className='form-group'>
+                        <label
+                            className='my-1 mr-2'
+                            htmlFor='inlineFormCustomSelectPref'
+                        >
+                            Event Type
+                        </label>
+                        <select
+                            value={this.state.selectedEvent}
+                            onChange={this.selectItem}
+                            // className='custom-select my-1 mr-sm-2'
+                            // className='form-control my-1'
+                            className='form-control mr-sm-2 my-1'
+                            id='inlineFormCustomSelectPref'
+                            name='selectedEvent'
+                        >
+                            <option>{chooseOption}</option>
+                            <option value='dayStart'>Start Workday</option>
+                            <option value='breakStart'>Start Break Time</option>
+                            <option value='breakFinish'>
+                                Finish Break Time
+                            </option>
+                            <option value='dayFinish'>Finish Workday</option>
+                        </select>
+                    </div>
                     <br />
                     <div className='form-group'>
                         <input type='submit' className='btn btn-primary' />

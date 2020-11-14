@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const Item = props => {
@@ -7,15 +6,17 @@ const Item = props => {
     const breakStart = new Date(props.item.breakStart);
     const breakFinish = new Date(props.item.breakFinish);
     const dayFinish = new Date(props.item.dayFinish);
+
     const dayMinutes = new Date(Math.abs(dayFinish - dayStart) / (60 * 1000));
     const breakMinutes = new Date(
         Math.abs(breakFinish - breakStart) / (60 * 1000)
     );
+    const totalMinutes = dayMinutes - breakMinutes;
 
-    const hours =
-        dayMinutes != 'Invalid Date'
-            ? `${parseInt(dayMinutes / 60)}:${dayMinutes % 60}`
-            : 'Missing Data';
+    console.log(totalMinutes);
+    const hours = isNaN(totalMinutes)
+        ? 'Missing Data'
+        : `${parseInt(totalMinutes / 60)}:${totalMinutes % 60}`;
     return (
         <tr>
             <td>{props.item.empName}</td>
@@ -31,14 +32,23 @@ const Item = props => {
 export default class HoursReport extends Component {
     constructor(props) {
         super(props);
+
+        let today = new Date();
+        const dd = String(today.getDate()).padStart(2, '0');
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        const yyyy = today.getFullYear();
+
+        this.today = yyyy + '-' + mm + '-' + dd;
+
         this.state = {
             items: [],
+            date: this.today,
         };
     }
 
-    async componentDidMount() {
+    async componentDidMount(date = this.state.date) {
         try {
-            const res = await axios.get('http://localhost:4000/report');
+            const res = await axios.get(`http://localhost:4000/report/${date}`);
             this.setState({ items: res.data });
         } catch (err) {
             console.log(`cannot get items`);
@@ -46,23 +56,46 @@ export default class HoursReport extends Component {
     }
 
     itemList() {
-        return Object.keys(this.state.items).map((id, i) => (
+        return Object.keys(this.state.items).map(id => (
             <Item item={this.state.items[id]} key={id}></Item>
         ));
-
-        // return this.state.items.map((item, i) => {
-        //     return <Item item={item} key={i}></Item>;
-        // });
     }
+    handleInputChange = e => {
+        this.setState({ [e.target.name]: e.target.value });
+    };
+
+    onSubmit = e => {
+        e.preventDefault();
+        try {
+            this.componentDidMount(this.state.date);
+        } catch (err) {
+            console.log(`cannot get items`);
+        }
+    };
 
     render() {
         return (
             <div>
-                <h3 style={{ marginTop: 15 }}>Hours Report</h3>
-                <table
-                    className='table table-striped'
-                    style={{ marginTop: 20 }}
-                >
+                <form onSubmit={this.onSubmit}>
+                    <div className='form-group'>
+                        <input
+                            className='form-control'
+                            type='date'
+                            name='date'
+                            onChange={this.handleInputChange}
+                            value={this.state.date}
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <input
+                            type='submit'
+                            value='Select Date'
+                            className='btn btn-primary '
+                        />
+                    </div>
+                </form>
+                <h3>Hours Report</h3>
+                <table className='table table-striped table-hover'>
                     <thead>
                         <tr>
                             <th>Employee Name</th>
@@ -73,7 +106,7 @@ export default class HoursReport extends Component {
                             <th>Total Hours</th>
                         </tr>
                     </thead>
-                    <tbody>{this.itemList()}</tbody>
+                    <tbody className=''>{this.itemList()}</tbody>
                 </table>
             </div>
         );
