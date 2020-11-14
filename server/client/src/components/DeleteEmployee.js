@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
+import { URLS } from '../consts';
 export default class DeleteEmployee extends Component {
     constructor(props) {
         super(props);
@@ -39,8 +39,8 @@ export default class DeleteEmployee extends Component {
         e.preventDefault();
         if (this.state.selectedEmployeeId !== this.CHOOSE_OPTION) {
             try {
-                const res = await axios.get(
-                    `http://localhost:4000/employee/delete/${this.state.selectedEmployeeId}`
+                const res = await axios.delete(
+                    URLS.DeleteEmployeeUrl(this.state.selectedEmployeeId)
                 );
                 console.log(res.data);
             } catch (err) {

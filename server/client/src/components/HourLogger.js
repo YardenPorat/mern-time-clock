@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-
+import { URLS } from '../consts';
 export default class HourLogger extends Component {
     constructor(props) {
         super(props);
@@ -13,7 +13,7 @@ export default class HourLogger extends Component {
 
     //get employee list
     async componentDidMount() {
-        const res = await axios.get('http://localhost:4000/');
+        const res = await axios.get(URLS.getEmployees);
         this.setState({ employeeList: res.data });
     }
 

@@ -1,19 +1,27 @@
 const express = require('express');
 const cors = require('cors');
+const { uniqBy, map, reduce, forEach } = require('lodash');
 const moment = require('moment');
-const app = express();
-const PORT = 4000;
+const config = require('config');
 const mongoose = require('mongoose');
+
+// Init server
+const app = express();
+
+// DB Schemas
 const eventSchema = require('./models/events');
 const employeeSchema = require('./models/employees');
-const MONGO_URL = 'mongodb://127.0.0.1:27017/employeeSchema';
+
+// Configuration
+MONGO_URI = config.get('MONGO_URI');
+PORT = config.get('PORT');
 
 app.use(cors());
 app.use(express.json());
 
 (async () => {
     try {
-        await mongoose.connect(MONGO_URL, {
+        await mongoose.connect(MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
@@ -25,15 +33,15 @@ app.use(express.json());
 mongoose.connection.once('open', () => {
     console.log(`MongoDB connected`);
 });
-//
-//routes:
-app.get('/', async (req, res) => {
+
+//routes
+app.get('/employees', async (req, res) => {
     //get all employees
     const employees = await employeeSchema.find({});
     res.status(200).send(employees);
 });
 
-app.get('/employee/delete/:id', async (req, res) => {
+app.delete('/employee/delete/:id', async (req, res) => {
     const employee = await employeeSchema.findOneAndDelete({
         _id: req.params.id,
     });
@@ -51,12 +59,12 @@ app.post('/employee/add', async (req, res) => {
 });
 
 app.post('/events/add', async (req, res) => {
-    const { selectedEmployeeId, eventType } = req.body;
+    const { selectedEmployeeId: _employee, eventType } = req.body;
 
     try {
         const event = await new eventSchema({
-            _employee: selectedEmployeeId,
-            eventType: eventType,
+            _employee,
+            eventType,
         }).save();
         res.status(200).send(
             `saved event type: ${eventType} for employee ${event._employee}`
@@ -79,24 +87,28 @@ app.get('/report/:date', async (req, res) => {
     });
 
     //extract uniqe employees (converted to string because _id is ObjectId type)
-    const uniqueEmployees = [
-        ...new Set(events.map(item => item._employee.toString())),
-    ];
+
+    const uniqueEmployees = map(uniqBy(events, '_employee'), item =>
+        item._employee.toString()
+    );
 
     // get employee data for those who had events on requested date
-    let employees = await employeeSchema.find({
+    const employees = await employeeSchema.find({
         _id: { $in: uniqueEmployees },
     });
 
-    const report = {};
-
     //insert employees id to the obj + their names
-    employees.map(({ _id, employeeName }) => {
-        report[_id] = { empName: employeeName };
-    });
+    const report = reduce(
+        employees,
+        (reportsObj, employee) => ({
+            ...reportsObj,
+            [employee._id]: { empName: employee.employeeName },
+        }),
+        {}
+    );
 
     //add events to each employee id
-    events.map(event => {
+    forEach(events, event => {
         report[event._employee][event.eventType] = event.eventDateTime;
     });
     res.status(200).send(report);
