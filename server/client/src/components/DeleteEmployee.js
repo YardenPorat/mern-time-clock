@@ -1,87 +1,76 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { URLS } from '../consts';
 import EmployeeList from './EmployeeList';
 
-export default class DeleteEmployee extends Component {
-    constructor(props) {
-        super(props);
-        this.DEFAULT_OPTION = 'Choose...';
-        this.state = {
-            selectedEmployeeId: this.DEFAULT_OPTION,
-            employeeList: [],
-            errorNotChosen: false,
-        };
-    }
+const DeleteEmployee = props => {
+    const DEFAULT_OPTION = 'Choose...';
 
-    onChangeSelectEmployee = e => {
-        console.log(e.target.value);
-        this.setState({
-            selectedEmployeeId: e.target.value,
-            errorNotChosen: false,
-        });
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState(
+        DEFAULT_OPTION
+    );
+    const [errorNotChosen, setErrorNotChosen] = useState(false);
+
+    const onChangeSelectEmployee = e => {
+        setSelectedEmployeeId(e.target.value);
+        setErrorNotChosen(false);
     };
 
-    onSubmit = async e => {
+    const onSubmit = async e => {
         e.preventDefault();
-        if (this.state.selectedEmployeeId !== this.DEFAULT_OPTION) {
+        if (selectedEmployeeId !== DEFAULT_OPTION) {
             try {
                 const res = await axios.delete(
-                    URLS.DeleteEmployeeUrl(this.state.selectedEmployeeId)
+                    URLS.DeleteEmployeeUrl(selectedEmployeeId)
                 );
                 console.log(res.data);
+                setSelectedEmployeeId(DEFAULT_OPTION);
             } catch (err) {
                 console.log(`error - cannot post new todo: ${err}`);
             }
-
-            this.setState({
-                selectedEmployeeId: '',
-                selectedEvent: '',
-            });
-
             return;
         }
-        this.setState({ errorNotChosen: true });
+
+        setErrorNotChosen(true);
     };
 
-    handleCloseAlert = () => {
-        this.setState({ errorNotChosen: false });
+    const handleCloseAlert = () => {
+        setErrorNotChosen(false);
     };
 
-    render() {
-        return (
-            <div>
-                <form onSubmit={this.onSubmit}>
-                    <EmployeeList
-                        onChangeSelectEmployee={this.onChangeSelectEmployee}
-                        selectedEmployeeId={this.state.selectedEmployeeId}
-                        DEFAULT_OPTION={this.DEFAULT_OPTION}
+    return (
+        <div>
+            <form onSubmit={onSubmit}>
+                <EmployeeList
+                    onChangeSelectEmployee={onChangeSelectEmployee}
+                    selectedEmployeeId={selectedEmployeeId}
+                    DEFAULT_OPTION={DEFAULT_OPTION}
+                />
+
+                <br />
+                <div className='form-group'>
+                    <input
+                        type='submit'
+                        value='Delete Employee'
+                        className='btn btn-primary'
                     />
-
-                    <br />
-                    <div className='form-group'>
-                        <input
-                            type='submit'
-                            value='Delete Employee'
-                            className='btn btn-primary'
-                        />
-                    </div>
-                </form>
-                {this.state.errorNotChosen && (
-                    <div className='alert alert-danger' role='alert'>
-                        Please choose employee from the list
-                        <button
-                            type='button'
-                            className='close'
-                            data-dismiss='alert'
-                            aria-label='Close'
-                            onClick={this.handleCloseAlert}
-                        >
-                            <span aria-hidden='true'>&times;</span>
-                        </button>
-                    </div>
-                )}
-            </div>
-        );
-    }
-}
+                </div>
+            </form>
+            {errorNotChosen && (
+                <div className='alert alert-danger' role='alert'>
+                    Please choose employee from the list
+                    <button
+                        type='button'
+                        className='close'
+                        data-dismiss='alert'
+                        aria-label='Close'
+                        onClick={handleCloseAlert}
+                    >
+                        <span aria-hidden='true'>&times;</span>
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+export default DeleteEmployee;

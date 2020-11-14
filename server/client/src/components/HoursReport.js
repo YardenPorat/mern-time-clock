@@ -43,7 +43,7 @@ const HoursReport = props => {
 
     useEffect(() => {
         fetchReportData();
-    }, []);
+    }, [date]);
 
     const fetchReportData = async (date = today) => {
         try {
