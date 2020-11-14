@@ -1,12 +1,19 @@
 const express = require('express');
 const cors = require('cors');
 const moment = require('moment');
-const app = express();
-const PORT = 4000;
 const mongoose = require('mongoose');
+const config = require('config');
+
+// Init server
+const app = express();
+
+// DB Schemas
 const eventSchema = require('./models/events');
 const employeeSchema = require('./models/employees');
-const MONGO_URL = 'mongodb://127.0.0.1:27017/employeeSchema';
+
+// Configurtaion
+const PORT = config.get('PORT');
+const MONGO_URL = config.get('MONGO_URL');
 
 app.use(cors());
 app.use(express.json());
@@ -25,7 +32,7 @@ app.use(express.json());
 mongoose.connection.once('open', () => {
     console.log(`MongoDB connected`);
 });
-//
+
 //routes:
 app.get('/', async (req, res) => {
     //get all employees
