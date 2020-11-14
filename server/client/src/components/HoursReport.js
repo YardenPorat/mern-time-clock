@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { URLS } from '../consts';
 
@@ -30,90 +30,80 @@ const Item = props => {
     );
 };
 
-export default class HoursReport extends Component {
-    constructor(props) {
-        super(props);
+const HoursReport = props => {
+    let today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    const yyyy = today.getFullYear();
 
-        let today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        const yyyy = today.getFullYear();
+    today = yyyy + '-' + mm + '-' + dd;
 
-        this.today = yyyy + '-' + mm + '-' + dd;
+    const [items, setItems] = useState([]);
+    const [date, setDate] = useState(today);
 
-        this.state = {
-            items: [],
-            date: this.today,
-        };
-    }
+    useEffect(() => {
+        fetchReportData();
+    }, []);
 
-    componentDidMount() {
+    const fetchReportData = async (date = today) => {
         try {
-            this.fetchReportData();
+            const res = await axios.get(URLS.ReportUrl(date));
+            setItems(res.data);
         } catch (err) {
             console.log(`cannot get items`);
         }
-    }
-
-    fetchReportData = async (date = this.state.date) => {
-        const res = await axios.get(URLS.ReportUrl(date));
-        this.setState({ items: res.data });
     };
 
-    itemList() {
-        return Object.keys(this.state.items).map(id => (
-            <Item item={this.state.items[id]} key={id}></Item>
+    const itemList = () => {
+        return Object.keys(items).map(id => (
+            <Item item={items[id]} key={id}></Item>
         ));
-    }
-    handleInputChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
     };
 
-    onSubmit = e => {
+    const onSubmit = e => {
         e.preventDefault();
         try {
-            this.fetchReportData();
+            fetchReportData(date);
         } catch (err) {
             console.log(`cannot get items`);
         }
     };
 
-    render() {
-        return (
-            <div>
-                <form onSubmit={this.onSubmit}>
-                    <div className='form-group'>
-                        <input
-                            className='form-control'
-                            type='date'
-                            name='date'
-                            onChange={this.handleInputChange}
-                            value={this.state.date}
-                        />
-                    </div>
-                    <div className='form-group'>
-                        <input
-                            type='submit'
-                            value='Select Date'
-                            className='btn btn-primary '
-                        />
-                    </div>
-                </form>
-                <h3>Hours Report</h3>
-                <table className='table table-striped table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Employee Name</th>
-                            <th>Start Time</th>
-                            <th>Break Start Time</th>
-                            <th>Break Finish Time</th>
-                            <th>Day Finish Time</th>
-                            <th>Total Hours</th>
-                        </tr>
-                    </thead>
-                    <tbody className=''>{this.itemList()}</tbody>
-                </table>
-            </div>
-        );
-    }
-}
+    return (
+        <div>
+            <form onSubmit={onSubmit}>
+                <div className='form-group'>
+                    <input
+                        className='form-control'
+                        type='date'
+                        name='date'
+                        onChange={e => setDate(e.target.value)}
+                        value={date}
+                    />
+                </div>
+                <div className='form-group'>
+                    <input
+                        type='submit'
+                        value='Select Date'
+                        className='btn btn-primary '
+                    />
+                </div>
+            </form>
+            <h3>Hours Report</h3>
+            <table className='table table-striped table-hover'>
+                <thead>
+                    <tr>
+                        <th>Employee Name</th>
+                        <th>Start Time</th>
+                        <th>Break Start Time</th>
+                        <th>Break Finish Time</th>
+                        <th>Day Finish Time</th>
+                        <th>Total Hours</th>
+                    </tr>
+                </thead>
+                <tbody className=''>{itemList()}</tbody>
+            </table>
+        </div>
+    );
+};
+export default HoursReport;
